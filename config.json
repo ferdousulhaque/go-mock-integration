@@ -1,0 +1,11 @@
+{
+    "name": "Go Mock Integration",
+    "api": {
+        "cms-special-offer": {
+            "api": "http://172.16.22.11:8084/api/cms",
+            "mapping": {
+                "price": "balance"
+            }
+        }
+    }
+}
