@@ -2,48 +2,62 @@ package main
 
 import (
 	"fmt"
+	"os"
+
+	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/tkanos/gonfig"
 )
 
+type Pairs struct {
+	A_key string
+	B_key string
+}
+
+type Apis struct {
+	Endpoint string
+	Mapping  []Pairs
+}
+
 type Configuration struct {
-	DB_USERNAME string
-	DB_PASSWORD string
-	DB_PORT     string
-	DB_HOST     string
-	DB_NAME     string
+	Name  string
+	Mocks []Apis
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	log.Printf("Listening to port: %s", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	log.Print("Hello world recieved a request")
-	target := os.Getenv("TARGET")
-	if target == "" {
-		target = "World"
-	}
-	fmt.Fprintf(w, "Hello %s!\n", target)
+	config := GetConfig()
+	response := CallEndpoint(config.Mocks[0].Endpoint)
+	fmt.Print(Convert(response, config.Mocks[0].Mapping))
 }
 
 func GetConfig(params ...string) Configuration {
 	configuration := Configuration{}
-	env := "dev"
-	if len(params) > 0 {
-		env = params[0]
-	}
-	fileName := fmt.Sprintf("./%s_config.json", env)
+	fileName := "./config.json"
 	gonfig.GetConf(fileName, &configuration)
 	return configuration
+}
+
+func CallEndpoint(endpoint string) string {
+	response, err := http.Get(endpoint)
+
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(responseData)
+}
+
+func Convert(response string, pairs []Pairs) string {
+	for _, pair := range pairs {
+		fmt.Println(pair.A_key)
+		fmt.Println(pair.B_key)
+	}
+	return ""
 }

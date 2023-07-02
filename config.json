@@ -1,11 +1,12 @@
 {
-    "name": "Go Mock Integration",
-    "api": {
-        "cms-special-offer": {
-            "api": "http://172.16.22.11:8084/api/cms",
-            "mapping": {
-                "price": "balance"
-            }
-        }
+  "name": "go-mock-integration",
+  "mocks": [
+    {
+      "endpoint": "https://jsonplaceholder.typicode.com/todos/1",
+      "mapping": [
+        { "a_key": "completed", "b_key": "status" },
+        { "a_key": "userId", "b_key": "pid" }
+      ]
     }
+  ]
 }
